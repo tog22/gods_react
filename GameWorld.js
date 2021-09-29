@@ -29,7 +29,7 @@ class GameWorld extends React.Component {
 								key={square_key_name} 
 								row_index={row_index} 
 								column_index={column_index} 
-								contents={this.state.otw[row_index][column_index]}
+								square={this.state.otw[row_index][column_index]}
 								on_click={this.square_click}
 							/>
 						)
@@ -41,32 +41,31 @@ class GameWorld extends React.Component {
 	
 	square_click (row, col) {
 		
-		let clicked = this.state.otw[row][col];
-
+		// let clicked = this.state.otw[row][col];
+		// 
+		// let is_something_selected;
+		// if (this.selected_row !== null && this.selected_col !== null) {
+		// 	is_something_selected = true;
+		// } else {
+		// 	is_something_selected = false;
+		// }
+		// 
+		// // 1) SELECTING PIECES
+		// if (!is_something_selected) {
+		// 	
+		// 	// Check if the active side has a piece to select
+		// 	
+		// 	if (clicked.occupant === null) {
+		// 		return;
+		// 	}
+		// 	
+		// }
 		
 		/********************
 		*********************
 		**				   **
 		**   VUE VERSION   **
 		**				   **
-		
-		let clicked = this.state.otw[row][col];
-		
-		let is_something_selected;
-		if (this.selected_row !== null && this.selected_col !== null) {
-			is_something_selected = true;
-		} else {
-			is_something_selected = false;
-		}
-		
-		// 1) SELECTING PIECES
-		if (!is_something_selected) {
-			
-			// Check if the active side has a piece to select
-			
-			if (clicked.occupant === null) {
-				return;
-			}
 			
 			if (clicked.side !== this.current_player) {
 				alert ("It's not this player's turn");
