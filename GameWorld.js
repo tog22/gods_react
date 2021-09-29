@@ -40,7 +40,8 @@ class GameWorld extends React.Component {
 								column_index={column_index} 
 								contents={this.state.of_the_world[row_index][column_index]}
 								on_click={
-									() => {this.square_click();}
+									this.square_click
+									// () => {this.square_click();}
 								}
 							/>
 						)
@@ -51,7 +52,7 @@ class GameWorld extends React.Component {
 	}
 	
 	square_click (row_index, column_index) {
-		alert(row_index);
+		alert("Var passed to func in parent: "+row_index);
 	}
 	
 	render() {
