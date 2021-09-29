@@ -39,7 +39,9 @@ class GameWorld extends React.Component {
 								row_index={row_index} 
 								column_index={column_index} 
 								contents={this.state.of_the_world[row_index][column_index]}
-								on_click={() => {this.square_click();}}
+								on_click={
+									() => {this.square_click();}
+								}
 							/>
 						)
 					}

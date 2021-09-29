@@ -27,10 +27,9 @@ class Square extends React.Component {
 		
 		return (
 			<td className={td_class_names} onClick={() => {
-				alert(this.props.row_index);
-				let test = this.props.row_index;
-				alert (test);
-				this.props.on_click(test, this.props.column_index);
+				// let test = this.props.row_index;
+				// alert ("test var to pass="+test);
+				this.props.on_click(this.props.row_index, this.props.column_index);
 			}}>
 				<div className={div_class_names}>
 					{div_contents}
