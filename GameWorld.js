@@ -32,12 +32,19 @@ class GameWorld extends React.Component {
 						const square_key_name = "square_"+row_index.toString()+"_"+column_index.toString();
 						return(
 							<Square 
-								key={square_key_name} 
+								key={square_key_name}
+								 
 								row_index={row_index} 
+								
 								column_index={column_index} 
+								
 								square={this.state.otw[row_index][column_index]}
+								
 								on_click={this.square_click}
-								is_selected={this.state.otw[row_index][column_index].is_selected}
+								
+								is_selected={this.state.otw
+									[row_index][column_index].is_selected}
+									
 								test_in_parent_state={this.state.test_in_parent_state}
 							/>
 						)
