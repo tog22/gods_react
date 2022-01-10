@@ -6,8 +6,6 @@ import update from 'immutability-helper';
 
 import Square from './Square';
 
-import './GameWorld.css';
-
 class GameWorld extends React.Component {
 
 	
@@ -98,16 +96,12 @@ class GameWorld extends React.Component {
 			this.setState({selected_col: col})
 			
 			// this.state.otw[row][col].is_selected = 'selected ';
+			
 			this.setState({
 				otw: update(
-					this.state.otw, {0: {1: {is_selected: {$set: 'selected '}}}}
+					this.state.otw, {[row]: {[col]: {is_selected: {$set: 'selected '}}}}
 				)
 			});
-			// this.setState({
-			// 	otw: update(
-			// 		this.state.otw, {[row]: {[col]: {is_selected: {$set: 'selected '}}}}
-			// 	)
-			// });
 			console.log(this)
 			console.log(this.state.otw)
 			//this.setState({otw: update(this.state.otw, {$push: [4]})});

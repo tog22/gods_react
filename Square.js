@@ -82,6 +82,7 @@ class Square extends React.Component {
 					{occupant_image}
 					<p>Parent's state: {this.props.test_in_parent_state}</p>
 					<p>Child's state: {this.state.test_in_child_state}</p>
+					<p>is_s: {square.is_selected}</p>
 				</div>
 		    </td>
 		);
