@@ -42,8 +42,7 @@ class GameWorld extends React.Component {
 								
 								is_selected={this.state.otw
 									[row_index][column_index].is_selected}
-									
-								test_in_parent_state={this.state.test_in_parent_state}
+								
 							/>
 						)
 					}
@@ -105,10 +104,6 @@ class GameWorld extends React.Component {
 			console.log(this)
 			console.log(this.state.otw)
 			//this.setState({otw: update(this.state.otw, {$push: [4]})});
-			
-			this.setState({test_in_parent_state: 'sel'})
-			
-			that_square.setState({test_in_child_state: 'sel'})
 			
 		// 2) MOVING SELECTED PIECES
 		}// else if (is_something_selected) { 
@@ -189,7 +184,6 @@ class GameWorld extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			test_in_parent_state: 'initial value',
 			current_player: 1,
 			piece_has_moved: false,
 			inspiration_has_moved: false,

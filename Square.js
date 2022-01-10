@@ -12,10 +12,7 @@ is_selected: ''
 
 class Square extends React.Component {
 	constructor(props) {
-		super(props);
-		this.state = {
-			test_in_child_state: 'initial value'
-		};
+		super(props)
 		// Bind this in all methods
 		// ...but there are no methods using this to bind
 	}
@@ -80,9 +77,6 @@ class Square extends React.Component {
 			}}>
 				<div className={occupant_class}>
 					{occupant_image}
-					<p>Parent's state: {this.props.test_in_parent_state}</p>
-					<p>Child's state: {this.state.test_in_child_state}</p>
-					<p>is_s: {square.is_selected}</p>
 				</div>
 		    </td>
 		);
