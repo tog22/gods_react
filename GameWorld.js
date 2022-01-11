@@ -181,11 +181,11 @@ class GameWorld extends React.Component {
 	**	 IS THE MOVE VALID?   **
 	**						  **
 	****************************
-	***************************
+	***************************/
 	is_valid_move(from_row, from_col, to_row, to_col) {
 		
-		let selected = this.sotw[from_row][from_col];
-		let dest = this.sotw[to_row][to_col];
+		let selected = this.state.otw[from_row][from_col];
+		let dest = this.state.otw[to_row][to_col];
 		
 		// Don't count clicks on the same square, to make logic simpler
 		
@@ -195,7 +195,7 @@ class GameWorld extends React.Component {
 		
 		//  1) MOVING MORTALS & ANGELS
 		
-		if (!selected.divinely_inspired && !this.piece_has_moved) {
+		if (!selected.divinely_inspired && !this.state.piece_has_moved) {
 			if (dest.occupant !== null) {
 				return false;
 			}
@@ -221,8 +221,8 @@ class GameWorld extends React.Component {
 		
 		//  2) MOVING DIVINE INSPIRATION
 		
-		if (selected.divinely_inspired && !this.inspiration_has_moved) {
-			if (!dest.side === this.current_player) {
+		if (selected.divinely_inspired && !this.state.inspiration_has_moved) {
+			if (!dest.side === this.state.current_player) {
 				return false;
 			}
 			if (this.is_along_an_inspiration_path(from_row, from_col, to_row, to_col)) {
@@ -233,7 +233,7 @@ class GameWorld extends React.Component {
 	
 	
 	is_adjacent_diagonally() {
-		if (this.row_delta === 1 && this.col_delta === 1) {
+		if (this.state.row_delta === 1 && this.state.col_delta === 1) {
 			return true;
 		} else {
 			return false;
@@ -242,9 +242,9 @@ class GameWorld extends React.Component {
 	
 	
 	is_adjacent() {
-		if (this.row_delta === 1 && this.col_delta === 0) {
+		if (this.state.row_delta === 1 && this.state.col_delta === 0) {
 			return true;
-		} else if (this.row_delta === 0 && this.col_delta === 1) {
+		} else if (this.state.row_delta === 0 && this.state.col_delta === 1) {
 			return true;
 		} else {
 			return false;
@@ -254,11 +254,11 @@ class GameWorld extends React.Component {
 	
 	is_along_clear_straight_line(from_row, from_col, to_row, to_col) {
 		// Check if it's not a straight line
-		if (this.row_delta !== 0 && this.col_delta !== 0) {
+		if (this.state.row_delta !== 0 && this.state.col_delta !== 0) {
 			return false;
 		}
 		// Check for pieces in between
-		if (this.row_delta > 0) {
+		if (this.state.row_delta > 0) {
 			let lowest_intermediate;
 			let highest_intermediate;
 			if (to_row > (from_row+1)) {
@@ -275,13 +275,13 @@ class GameWorld extends React.Component {
 				intermediate <= highest_intermediate;
 				intermediate++
 			) {
-				let intermediate_square = this.sotw[intermediate][from_col];
+				let intermediate_square = this.state.otw[intermediate][from_col];
 				if (intermediate_square.occupant) {
 					return false;
 				}
 			}
 			return true;
-		} else if (this.col_delta > 0) {
+		} else if (this.state.col_delta > 0) {
 			let lowest_intermediate;
 			let highest_intermediate;
 			if (to_col > (from_col+1)) {
@@ -298,7 +298,7 @@ class GameWorld extends React.Component {
 				intermediate <= highest_intermediate;
 				intermediate++
 			) {
-				let intermediate_square = this.sotw[from_row][intermediate];
+				let intermediate_square = this.state.otw[from_row][intermediate];
 				if (intermediate_square.occupant) {
 					return false;
 				}
@@ -310,11 +310,11 @@ class GameWorld extends React.Component {
 	
 	is_along_solid_straight_line(from_row, from_col, to_row, to_col) {
 		// Check if it's not a straight line
-		if (this.row_delta !== 0 && this.col_delta !== 0) {
+		if (this.state.row_delta !== 0 && this.state.col_delta !== 0) {
 			return false;
 		}
 		// Check for pieces in between
-		if (this.row_delta > 0) {
+		if (this.state.row_delta > 0) {
 			let lowest_intermediate;
 			let highest_intermediate;
 			if (to_row > (from_row+1)) {
@@ -331,13 +331,13 @@ class GameWorld extends React.Component {
 				intermediate <= highest_intermediate;
 				intermediate++
 			) {
-				let intermediate_square = this.sotw[intermediate][from_col];
+				let intermediate_square = this.state.otw[intermediate][from_col];
 				if (!intermediate_square.occupant) {
 					return false;
 				}
 			}
 			return true;
-		} else if (this.col_delta > 0) {
+		} else if (this.state.col_delta > 0) {
 			let lowest_intermediate;
 			let highest_intermediate;
 			if (to_col > (from_col+1)) {
@@ -354,7 +354,7 @@ class GameWorld extends React.Component {
 				intermediate <= highest_intermediate;
 				intermediate++
 			) {
-				let intermediate_square = this.sotw[from_row][intermediate];
+				let intermediate_square = this.state.otw[from_row][intermediate];
 				if (!intermediate_square.occupant) {
 					return false;
 				}
@@ -411,12 +411,12 @@ class GameWorld extends React.Component {
 			}
 			path_trace_tracker.visited[adj.row][adj.col] = true
 			
-			if (this.sotw[adj.row][adj.col].side !== this.current_player) { // f2
+			if (this.state.otw[adj.row][adj.col].side !== this.state.current_player) { // f2
 				// l('…empty')
 				continue
 			}
 			
-			if (this.sotw[adj.row][adj.col].divinely_inspired) {
+			if (this.state.otw[adj.row][adj.col].divinely_inspired) {
 				path_trace_tracker.reached_inspiration = true
 				// l('••• DIVINE INSPIRATION FOUND •••')
 			}
@@ -477,7 +477,7 @@ class GameWorld extends React.Component {
 	
 	is_hop(from_row, from_col, to_row, to_col) {
 		
-		if (this.row_delta > 0 && this.col_delta > 0) {
+		if (this.state.row_delta > 0 && this.state.col_delta > 0) {
 			return false
 		}
 		
@@ -485,15 +485,15 @@ class GameWorld extends React.Component {
 		var is_along_column
 		var col_direction
 		
-		if (this.row_delta === 2) {
+		if (this.state.row_delta === 2) {
 			var intermediate_row
 			if (to_row > from_row) {
 				intermediate_row = to_row - 1;
 			} else {
 				intermediate_row = from_row - 1;
 			}
-			intermediate_piece = this.sotw[intermediate_row][from_col]
-		} else if (this.col_delta === 2) {
+			intermediate_piece = this.state.otw[intermediate_row][from_col]
+		} else if (this.state.col_delta === 2) {
 			is_along_column = true
 			var intermediate_col
 			if (to_col > from_col) {
@@ -503,7 +503,7 @@ class GameWorld extends React.Component {
 				intermediate_col = from_col - 1;
 				col_direction = 'up'
 			}
-			intermediate_piece = this.sotw[from_row][intermediate_col]
+			intermediate_piece = this.state.otw[from_row][intermediate_col]
 		} else {
 			return false
 		}
@@ -512,7 +512,7 @@ class GameWorld extends React.Component {
 			return false;
 		}
 		
-		switch (this.current_player) {
+		switch (this.state.current_player) {
 			
 			case 1:
 				if (is_along_column && col_direction === 'up') {
@@ -546,19 +546,19 @@ class GameWorld extends React.Component {
 	**	   POST-TURN STUFF    **
 	**						  **
 	****************************
-	***************************
+	***************************/
 	unselect_piece() {
 		// Deselect the square moved from
-		this.sotw[this.selected_row][this.selected_col].is_selected = '';
+		this.state.otw[this.state.selected_row][this.state.selected_col].is_selected = '';
 		
 		// AFTER all other deselection steps, unset the world's selected_row/col state
 		
-		this.selected_row = null;
-		this.selected_col = null;
+		this.state.selected_row = null;
+		this.state.selected_col = null;
 		
 		// Reset the deltas for neatness
-		this.row_delta = null;
-		this.col_delta = null;
+		this.state.row_delta = null;
+		this.state.col_delta = null;
 	}
 	
 	
@@ -568,9 +568,9 @@ class GameWorld extends React.Component {
 		}
 		switch (moved_to.heartland) {
 			case 1:
-				if (this.current_player === 2) {
-					this.winner = 2
-					this.win_type = 'Heartland reached'
+				if (this.state.current_player === 2) {
+					this.state.winner = 2
+					this.state.win_type = 'Heartland reached'
 					bus.$emit('Winner', {
 						winner: 2,
 						win_type: 'Heartland reached'
@@ -578,9 +578,9 @@ class GameWorld extends React.Component {
 				}
 				break;
 			case 2:
-				if (this.current_player === 1) {
-					this.winner = 1
-					this.win_type = 'Heartland reached'
+				if (this.state.current_player === 1) {
+					this.state.winner = 1
+					this.state.win_type = 'Heartland reached'
 					bus.$emit('Winner', {
 						winner: 1,
 						win_type: 'Heartland reached'
@@ -595,7 +595,7 @@ class GameWorld extends React.Component {
 		
 		let squares_to_check_for_trap = this.squares_to_check_for_trap(to_row, to_col)
 		
-		let self = this.current_player
+		let self = this.state.current_player
 		var opponent
 		if (self === 1) {
 			opponent = 2
@@ -603,19 +603,19 @@ class GameWorld extends React.Component {
 			opponent = 1
 		}
 		for (var square of squares_to_check_for_trap) {
-			if (this.sotw[square.adj_row][square.adj_col].side === opponent) {
+			if (this.state.otw[square.adj_row][square.adj_col].side === opponent) {
 				
-				if (this.sotw[square.next_row][square.next_col].side === self && !this.sotw[square.next_row][square.next_col].divinely_inspired) {
+				if (this.state.otw[square.next_row][square.next_col].side === self && !this.state.otw[square.next_row][square.next_col].divinely_inspired) {
 					
-					this.sotw[square.adj_row][square.adj_col].occupant = null
-					this.sotw[square.adj_row][square.adj_col].side = null
+					this.state.otw[square.adj_row][square.adj_col].occupant = null
+					this.state.otw[square.adj_row][square.adj_col].side = null
 					
-					if (this.sotw[square.adj_row][square.adj_col].divinely_inspired) {
-						this.winner = this.current_player
-						this.win_type = 'Faith extinguished'
-						this.sotw[square.adj_row][square.adj_col].divinely_inspired = false
+					if (this.state.otw[square.adj_row][square.adj_col].divinely_inspired) {
+						this.state.winner = this.state.current_player
+						this.state.win_type = 'Faith extinguished'
+						this.state.otw[square.adj_row][square.adj_col].divinely_inspired = false
 						bus.$emit('Winner', {
-							winner: this.current_player,
+							winner: this.state.current_player,
 							win_type: 'Faith extinguished'
 						})
 					}
@@ -695,33 +695,33 @@ class GameWorld extends React.Component {
 	
 	end_turn() {
 		
-		switch (this.current_player) {
+		switch (this.state.current_player) {
 			case 1:
-				this.current_player = 2;
+				this.state.current_player = 2;
 				break;
 			case 2:
-				this.current_player = 1;
+				this.state.current_player = 1;
 				break;
 		}
-		l(this.turn)
-		this.turn++;
-		this.piece_has_moved = false;
-		this.inspiration_has_moved = false;
-		if (this.selected_row && this.selected_col) {
-			this.sotw[this.selected_row][this.selected_col].is_selected = '';
+		l(this.state.turn)
+		this.state.turn++;
+		this.state.piece_has_moved = false;
+		this.state.inspiration_has_moved = false;
+		if (this.state.selected_row && this.state.selected_col) {
+			this.state.otw[this.state.selected_row][this.state.selected_col].is_selected = '';
 		}
-		this.selected_row = null;
-		this.selected_col = null;
-		this.row_delta = null;
-		this.col_delta = null;
+		this.state.selected_row = null;
+		this.state.selected_col = null;
+		this.state.row_delta = null;
+		this.state.col_delta = null;
 		// Pulse animation is added in computed property current_player_image 
 		/// (Adding it with jQuery here doesn't work as it then gets overridden there)
 		
-		if (this.online_game) {
+		if (this.state.online_game) {
 			
 			var server_request = new XMLHttpRequest()
 			
-			let get_url = 'http://gods.philosofiles.com/sync/?action=update&game='+this.online.game_id+'&pw='+this.online.game_pass+'&turn='+this.turn+'&current_player='+this.current_player+'&winner='+this.winner+'&win_type='+this.win_type+'&sotw='+JSON.stringify(this.sotw);
+			let get_url = 'http://gods.philosofiles.com/sync/?action=update&game='+this.state.online.game_id+'&pw='+this.state.online.game_pass+'&turn='+this.state.turn+'&current_player='+this.state.current_player+'&winner='+this.state.winner+'&win_type='+this.state.win_type+'&sotw='+JSON.stringify(this.state.otw);
 			
 			server_request.open("GET", get_url, false) // false = synchronous
 			server_request.send()
@@ -733,14 +733,14 @@ class GameWorld extends React.Component {
 	
 	waiting_online() {
 		
-		if (!this.online_game) {
+		if (!this.state.online_game) {
 			return false
 		}
 		
 		if (
-			(this.current_player === 1 && this.online.side === 2)
+			(this.state.current_player === 1 && this.state.online.side === 2)
 			||
-			(this.current_player === 2 && this.online.side === 1)
+			(this.state.current_player === 2 && this.state.online.side === 1)
 		) {
 			return true
 		} else {
