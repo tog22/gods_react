@@ -17,10 +17,6 @@ class Square extends React.Component {
 		// ...but there are no methods using this to bind
 	}
 	
-	test_return() {
-		return 'className="divinely_inspired"';
-	}
-	
 	render() {
 		const square = this.props.square;
 		

@@ -94,26 +94,13 @@ class GameWorld extends React.Component {
 			this.setState({selected_row: row})
 			this.setState({selected_col: col})
 			
-			// this.state.otw[row][col].is_selected = 'selected ';
-			
 			this.setState({
 				otw: update(
 					this.state.otw, {[row]: {[col]: {is_selected: {$set: 'selected '}}}}
 				)
 			});
-			console.log(this)
-			console.log(this.state.otw)
-			//this.setState({otw: update(this.state.otw, {$push: [4]})});
 			
 		// 2) MOVING SELECTED PIECES
-		}// else if (is_something_selected) { 
-		
-		/********************
-		*********************
-		**				   **
-		**   VUE VERSION   **
-		**				   **
-			
 		} else if (is_something_selected) {
 			
 			let to_row = row;
@@ -124,7 +111,7 @@ class GameWorld extends React.Component {
 			// Re-clicking the selected piece, to unselect it
 			
 			if (to_row === from_row && to_col === from_col) {
-				this.state.unselect_piece();
+				this.unselect_piece();
 			}
 			
 			
@@ -143,34 +130,42 @@ class GameWorld extends React.Component {
 			
 			let selected = this.state.otw[from_row][from_col];
 			
-			if (this.state.is_valid_move(this.state.selected_row, this.state.selected_col, to_row, to_col)) {
+			if (this.is_valid_move(this.state.selected_row, this.state.selected_col, to_row, to_col)) {
 				
 				// Make the move
 				
 				if (selected.divinely_inspired) {
-					this.state.inspiration_has_moved = true;
-					selected.divinely_inspired = false;
-					clicked.divinely_inspired = true;
+					
+					this.inspiration_has_moved = true
+					selected.divinely_inspired = false
+					clicked.divinely_inspired = true
+					this.check_for_trap(this.selected_row, this.selected_col)
+					this.check_for_reaching_heartland(clicked)
+					
 				} else if (selected.occupant === 'mortal') {
-					this.state.piece_has_moved = true;
-					selected.occupant = null;
-					selected.side = null;
-					clicked.occupant = 'mortal';
-					clicked.side = this.state.current_player;
+					
+					this.piece_has_moved = true
+					selected.occupant = null
+					selected.side = null
+					clicked.occupant = 'mortal'
+					clicked.side = this.current_player
+					this.check_for_trap(to_row, to_col)
+					
 				} else if (selected.occupant === 'angel'){
-					this.state.piece_has_moved = true;
-					selected.occupant = null;
-					selected.side = null;
-					clicked.occupant = 'angel';
-					clicked.side = this.state.current_player;
+					this.piece_has_moved = true
+					selected.occupant = null
+					selected.side = null
+					clicked.occupant = 'angel'
+					clicked.side = this.current_player
+					this.check_for_trap(to_row, to_col)
+					
 				}
-				
-				this.state.unselect_piece();
+				this.unselect_piece()
 				
 				// End turn/switch to the other player if appropriate
 				
-				if (this.state.piece_has_moved && this.state.inspiration_has_moved) {
-					this.state.end_turn();
+				if (this.piece_has_moved && this.inspiration_has_moved) {
+					this.end_turn();
 				}
 			
 			} else {
@@ -178,8 +173,583 @@ class GameWorld extends React.Component {
 			}
 			
 		}
-		*/
 	}
+	
+	/***************************
+	****************************
+	**						  **
+	**	 IS THE MOVE VALID?   **
+	**						  **
+	****************************
+	***************************
+	is_valid_move(from_row, from_col, to_row, to_col) {
+		
+		let selected = this.sotw[from_row][from_col];
+		let dest = this.sotw[to_row][to_col];
+		
+		// Don't count clicks on the same square, to make logic simpler
+		
+		if ((from_row === to_row) && (from_col === to_col)) {
+			return false;
+		}
+		
+		//  1) MOVING MORTALS & ANGELS
+		
+		if (!selected.divinely_inspired && !this.piece_has_moved) {
+			if (dest.occupant !== null) {
+				return false;
+			}
+			if (selected.occupant === 'mortal') {
+				if (this.is_adjacent()) {
+					return true;
+				}
+				if (this.is_adjacent_diagonally()) {
+					return true;
+				}
+				if (this.is_hop(from_row, from_col, to_row, to_col)) {
+					return true;
+				} 
+			} else if (selected.occupant === 'angel') {
+				if (this.is_along_clear_straight_line(from_row, from_col, to_row, to_col)) {
+					return true;
+				}
+				if (this.is_hop(from_row, from_col, to_row, to_col)) {
+					return true;
+				} 
+			}
+		}
+		
+		//  2) MOVING DIVINE INSPIRATION
+		
+		if (selected.divinely_inspired && !this.inspiration_has_moved) {
+			if (!dest.side === this.current_player) {
+				return false;
+			}
+			if (this.is_along_an_inspiration_path(from_row, from_col, to_row, to_col)) {
+				return true;
+			}
+		}
+	}
+	
+	
+	is_adjacent_diagonally() {
+		if (this.row_delta === 1 && this.col_delta === 1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	
+	is_adjacent() {
+		if (this.row_delta === 1 && this.col_delta === 0) {
+			return true;
+		} else if (this.row_delta === 0 && this.col_delta === 1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	
+	is_along_clear_straight_line(from_row, from_col, to_row, to_col) {
+		// Check if it's not a straight line
+		if (this.row_delta !== 0 && this.col_delta !== 0) {
+			return false;
+		}
+		// Check for pieces in between
+		if (this.row_delta > 0) {
+			let lowest_intermediate;
+			let highest_intermediate;
+			if (to_row > (from_row+1)) {
+				highest_intermediate = to_row - 1;
+				lowest_intermediate = from_row + 1;
+			} else if (from_row > (to_row+1)) {
+				highest_intermediate = from_row - 1;
+				lowest_intermediate = to_row + 1;
+			} else { // It's just moving 1 square
+				return true;
+			}
+			for (
+				let intermediate = lowest_intermediate;
+				intermediate <= highest_intermediate;
+				intermediate++
+			) {
+				let intermediate_square = this.sotw[intermediate][from_col];
+				if (intermediate_square.occupant) {
+					return false;
+				}
+			}
+			return true;
+		} else if (this.col_delta > 0) {
+			let lowest_intermediate;
+			let highest_intermediate;
+			if (to_col > (from_col+1)) {
+				highest_intermediate = to_col - 1;
+				lowest_intermediate = from_col + 1;
+			} else if (from_col > (to_col+1)) {
+				highest_intermediate = from_col - 1;
+				lowest_intermediate = to_col + 1;
+			} else { // It's just moving 1 square
+				return true;
+			}
+			for (
+				let intermediate = lowest_intermediate;
+				intermediate <= highest_intermediate;
+				intermediate++
+			) {
+				let intermediate_square = this.sotw[from_row][intermediate];
+				if (intermediate_square.occupant) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+	
+	
+	is_along_solid_straight_line(from_row, from_col, to_row, to_col) {
+		// Check if it's not a straight line
+		if (this.row_delta !== 0 && this.col_delta !== 0) {
+			return false;
+		}
+		// Check for pieces in between
+		if (this.row_delta > 0) {
+			let lowest_intermediate;
+			let highest_intermediate;
+			if (to_row > (from_row+1)) {
+				highest_intermediate = to_row - 1;
+				lowest_intermediate = from_row + 1;
+			} else if (from_row > (to_row+1)) {
+				highest_intermediate = from_row - 1;
+				lowest_intermediate = to_row + 1;
+			} else { // It's just moving 1 square
+				return true;
+			}
+			for (
+				let intermediate = lowest_intermediate;
+				intermediate <= highest_intermediate;
+				intermediate++
+			) {
+				let intermediate_square = this.sotw[intermediate][from_col];
+				if (!intermediate_square.occupant) {
+					return false;
+				}
+			}
+			return true;
+		} else if (this.col_delta > 0) {
+			let lowest_intermediate;
+			let highest_intermediate;
+			if (to_col > (from_col+1)) {
+				highest_intermediate = to_col - 1;
+				lowest_intermediate = from_col + 1;
+			} else if (from_col > (to_col+1)) {
+				highest_intermediate = from_col - 1;
+				lowest_intermediate = to_col + 1;
+			} else { // It's just moving 1 square
+				return true;
+			}
+			for (
+				let intermediate = lowest_intermediate;
+				intermediate <= highest_intermediate;
+				intermediate++
+			) {
+				let intermediate_square = this.sotw[from_row][intermediate];
+				if (!intermediate_square.occupant) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+	
+	
+	
+	is_along_an_inspiration_path(from_row, from_col, to_row, to_col) {
+		
+		let path_trace_tracker = {}
+		
+		// Create tracker for visited places
+		
+		let visited = []
+		for (var row = 0; row <= 8; row++) {
+			visited[row] = []
+			for (var col = 0; col <= 5; col++) {
+				visited[row][col] = false
+			}
+		}
+		path_trace_tracker.visited = visited
+		
+		// Start from to row and trace all possible courses, until we're either done or have reached divine inspiration
+		
+		path_trace_tracker.reached_inspiration = false
+		this.trace_adjacent_cells(to_row, to_col, path_trace_tracker)
+		
+		if (path_trace_tracker.reached_inspiration) {
+			return true
+		} else {
+			return false
+		}
+		
+	}
+	
+	
+	
+	trace_adjacent_cells(row, col, path_trace_tracker) {
+		
+		let adjacent_cells = this.get_adjacent_cells(row, col)
+		
+		// l('____ TRACE ADJACENT TO '+row+'-'+col)
+		
+		for (var adj of adjacent_cells) {
+			
+			// l('__IN LOOP FOR '+row+'-'+col)
+			// l('checking '+adj.row+'-'+adj.col)
+			if (path_trace_tracker.visited[adj.row][adj.col]) { // f1
+				// l('…visited')
+				continue
+			}
+			path_trace_tracker.visited[adj.row][adj.col] = true
+			
+			if (this.sotw[adj.row][adj.col].side !== this.current_player) { // f2
+				// l('…empty')
+				continue
+			}
+			
+			if (this.sotw[adj.row][adj.col].divinely_inspired) {
+				path_trace_tracker.reached_inspiration = true
+				// l('••• DIVINE INSPIRATION FOUND •••')
+			}
+			
+			// Otherwise…
+			// l('…neither visited nor empty, so starting subtrace')
+			this.trace_adjacent_cells(adj.row, adj.col, path_trace_tracker)
+			
+		}
+	}
+	
+	
+	
+	get_adjacent_cells(row, col) {
+		let adjacent_cells = []
+		
+		if (row !== 0) {
+			adjacent_cells.push(
+				{
+					row: row - 1,
+					col: col
+				}
+			)
+		}
+		
+		if (row !== 8) {
+			adjacent_cells.push(
+				{
+					row: row + 1,
+					col: col
+				}
+			)
+		}
+		
+		if (col !== 0) {
+			adjacent_cells.push(
+				{
+					row: row,
+					col: col - 1
+				}
+			)
+		}
+		
+		if (col !== 5) {
+			adjacent_cells.push(
+				{
+					row: row,
+					col: col + 1
+				}
+			)
+		}
+					
+		return adjacent_cells
+		
+	}
+	
+	
+	
+	is_hop(from_row, from_col, to_row, to_col) {
+		
+		if (this.row_delta > 0 && this.col_delta > 0) {
+			return false
+		}
+		
+		var intermediate_piece
+		var is_along_column
+		var col_direction
+		
+		if (this.row_delta === 2) {
+			var intermediate_row
+			if (to_row > from_row) {
+				intermediate_row = to_row - 1;
+			} else {
+				intermediate_row = from_row - 1;
+			}
+			intermediate_piece = this.sotw[intermediate_row][from_col]
+		} else if (this.col_delta === 2) {
+			is_along_column = true
+			var intermediate_col
+			if (to_col > from_col) {
+				intermediate_col = to_col - 1;
+				col_direction = 'down'
+			} else {
+				intermediate_col = from_col - 1;
+				col_direction = 'up'
+			}
+			intermediate_piece = this.sotw[from_row][intermediate_col]
+		} else {
+			return false
+		}
+		
+		if (intermediate_piece.divinely_inspired) {
+			return false;
+		}
+		
+		switch (this.current_player) {
+			
+			case 1:
+				if (is_along_column && col_direction === 'up') {
+					return false
+				}
+				if (intermediate_piece.side === 2) {
+					return true
+				} else {
+					return false
+				}
+				break
+			case 2:
+			default:
+				if (is_along_column && col_direction === 'down') {
+					return false
+				}
+				if (intermediate_piece.side === 1) {
+					return true
+				} else {
+					return false
+				}
+				break
+		}
+		
+	}
+	
+	
+	/***************************
+	****************************
+	**						  **
+	**	   POST-TURN STUFF    **
+	**						  **
+	****************************
+	***************************
+	unselect_piece() {
+		// Deselect the square moved from
+		this.sotw[this.selected_row][this.selected_col].is_selected = '';
+		
+		// AFTER all other deselection steps, unset the world's selected_row/col state
+		
+		this.selected_row = null;
+		this.selected_col = null;
+		
+		// Reset the deltas for neatness
+		this.row_delta = null;
+		this.col_delta = null;
+	}
+	
+	
+	check_for_reaching_heartland(moved_to) {
+		if (moved_to.heartland === undefined) {
+			return
+		}
+		switch (moved_to.heartland) {
+			case 1:
+				if (this.current_player === 2) {
+					this.winner = 2
+					this.win_type = 'Heartland reached'
+					bus.$emit('Winner', {
+						winner: 2,
+						win_type: 'Heartland reached'
+					})
+				}
+				break;
+			case 2:
+				if (this.current_player === 1) {
+					this.winner = 1
+					this.win_type = 'Heartland reached'
+					bus.$emit('Winner', {
+						winner: 1,
+						win_type: 'Heartland reached'
+					})
+				}
+				break;
+		}
+	}
+	
+	
+	check_for_trap(to_row, to_col) {
+		
+		let squares_to_check_for_trap = this.squares_to_check_for_trap(to_row, to_col)
+		
+		let self = this.current_player
+		var opponent
+		if (self === 1) {
+			opponent = 2
+		} else {
+			opponent = 1
+		}
+		for (var square of squares_to_check_for_trap) {
+			if (this.sotw[square.adj_row][square.adj_col].side === opponent) {
+				
+				if (this.sotw[square.next_row][square.next_col].side === self && !this.sotw[square.next_row][square.next_col].divinely_inspired) {
+					
+					this.sotw[square.adj_row][square.adj_col].occupant = null
+					this.sotw[square.adj_row][square.adj_col].side = null
+					
+					if (this.sotw[square.adj_row][square.adj_col].divinely_inspired) {
+						this.winner = this.current_player
+						this.win_type = 'Faith extinguished'
+						this.sotw[square.adj_row][square.adj_col].divinely_inspired = false
+						bus.$emit('Winner', {
+							winner: this.current_player,
+							win_type: 'Faith extinguished'
+						})
+					}
+					
+				}
+				
+			}
+		}
+		
+	}
+	
+	
+	squares_to_check_for_trap(row, col) {
+		
+		var at_top = false
+		var at_bottom = false
+		var at_left = false
+		var at_right = false
+		
+		if (row === 0 || row === 1) {
+			at_top = true
+		}
+		if (row === 8 || row === 7) {
+			at_bottom = true
+		}
+		if (col === 5 || col === 4) {
+			at_right = true
+		}
+		if (col === 0 || col  === 1) {
+			at_left = true
+		}
+		
+		let squares_to_check_for_trap = []
+		// TODO - match new rules
+		if (!at_top) {
+			squares_to_check_for_trap.push({
+				direction: 'row',
+				adj_row: row - 1,
+				adj_col: col,
+				next_row: row - 2,
+				next_col: col
+			})
+		}
+		if (!at_bottom) {
+			squares_to_check_for_trap.push({
+				direction: 'row',
+				adj_row: row + 1,
+				adj_col: col,
+				next_row: row +2, 
+				next_col: col
+			})
+		}
+		if (!at_left) {
+			squares_to_check_for_trap.push({
+				direction: 'col',
+				adj_row: row,
+				adj_col: col - 1,
+				next_row: row,
+				next_col: col - 2
+			})
+		}
+		if (!at_right) {
+			squares_to_check_for_trap.push({
+				direction: 'col',
+				adj_row: row,
+				adj_col: col + 1,
+				next_row: row,
+				next_col: col + 2
+			})
+		}
+		
+		return squares_to_check_for_trap
+		
+	}
+	
+	
+	
+	end_turn() {
+		
+		switch (this.current_player) {
+			case 1:
+				this.current_player = 2;
+				break;
+			case 2:
+				this.current_player = 1;
+				break;
+		}
+		l(this.turn)
+		this.turn++;
+		this.piece_has_moved = false;
+		this.inspiration_has_moved = false;
+		if (this.selected_row && this.selected_col) {
+			this.sotw[this.selected_row][this.selected_col].is_selected = '';
+		}
+		this.selected_row = null;
+		this.selected_col = null;
+		this.row_delta = null;
+		this.col_delta = null;
+		// Pulse animation is added in computed property current_player_image 
+		/// (Adding it with jQuery here doesn't work as it then gets overridden there)
+		
+		if (this.online_game) {
+			
+			var server_request = new XMLHttpRequest()
+			
+			let get_url = 'http://gods.philosofiles.com/sync/?action=update&game='+this.online.game_id+'&pw='+this.online.game_pass+'&turn='+this.turn+'&current_player='+this.current_player+'&winner='+this.winner+'&win_type='+this.win_type+'&sotw='+JSON.stringify(this.sotw);
+			
+			server_request.open("GET", get_url, false) // false = synchronous
+			server_request.send()
+			
+		}
+	}
+	
+	
+	
+	waiting_online() {
+		
+		if (!this.online_game) {
+			return false
+		}
+		
+		if (
+			(this.current_player === 1 && this.online.side === 2)
+			||
+			(this.current_player === 2 && this.online.side === 1)
+		) {
+			return true
+		} else {
+			return false
+		}
+		
+	}
+	
+	*/
 	
 	constructor(props) {
 		super(props);
