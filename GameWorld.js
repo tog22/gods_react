@@ -118,14 +118,14 @@ class GameWorld extends React.Component {
 			// Check if it's a valid move
 			// ...starting by calculating the deltas for later use
 			if (to_row > from_row) {
-				this.state.row_delta = to_row - from_row;
+				this.state.row_delta = to_row - from_row
 			} else {
-				this.state.row_delta = from_row - to_row;
+				this.state.row_delta = from_row - to_row
 			}
 			if (to_col > from_col) {
-				this.state.col_delta = to_col - from_col;
+				this.state.col_delta = to_col - from_col
 			} else {
-				this.state.col_delta = from_col - to_col;
+				this.state.col_delta = from_col - to_col
 			}
 			
 			let selected = this.state.otw[from_row][from_col];
@@ -549,16 +549,16 @@ class GameWorld extends React.Component {
 	***************************/
 	unselect_piece() {
 		// Deselect the square moved from
-		this.state.otw[this.state.selected_row][this.state.selected_col].is_selected = '';
+		this.state.otw[this.state.selected_row][this.state.selected_col].is_selected = ''
 		
 		// AFTER all other deselection steps, unset the world's selected_row/col state
 		
-		this.state.selected_row = null;
-		this.state.selected_col = null;
+		this.state.selected_row = null
+		this.state.selected_col = null
 		
 		// Reset the deltas for neatness
-		this.state.row_delta = null;
-		this.state.col_delta = null;
+		this.state.row_delta = null
+		this.state.col_delta = null
 	}
 	
 	
@@ -697,23 +697,23 @@ class GameWorld extends React.Component {
 		
 		switch (this.state.current_player) {
 			case 1:
-				this.state.current_player = 2;
+				this.state.current_player = 2
 				break;
 			case 2:
-				this.state.current_player = 1;
+				this.state.current_player = 1
 				break;
 		}
 		l(this.state.turn)
 		this.state.turn++;
-		this.state.piece_has_moved = false;
-		this.state.inspiration_has_moved = false;
+		this.state.piece_has_moved = false
+		this.state.inspiration_has_moved = false
 		if (this.state.selected_row && this.state.selected_col) {
-			this.state.otw[this.state.selected_row][this.state.selected_col].is_selected = '';
+			this.state.otw[this.state.selected_row][this.state.selected_col].is_selected = ''
 		}
-		this.state.selected_row = null;
-		this.state.selected_col = null;
-		this.state.row_delta = null;
-		this.state.col_delta = null;
+		this.state.selected_row = null
+		this.state.selected_col = null
+		this.state.row_delta = null
+		this.state.col_delta = null
 		// Pulse animation is added in computed property current_player_image 
 		/// (Adding it with jQuery here doesn't work as it then gets overridden there)
 		
