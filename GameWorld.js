@@ -549,7 +549,11 @@ class GameWorld extends React.Component {
 	***************************/
 	unselect_piece() {
 		// Deselect the square moved from
-		this.state.otw[this.state.selected_row][this.state.selected_col].is_selected = ''
+		this.setState({
+			otw: update(
+				this.state.otw, {[this.state.selected_row]: {[this.state.selected_col]: {is_selected: {$set: ''}}}}
+			)
+		});
 		
 		// AFTER all other deselection steps, unset the world's selected_row/col state
 		
@@ -607,13 +611,25 @@ class GameWorld extends React.Component {
 				
 				if (this.state.otw[square.next_row][square.next_col].side === self && !this.state.otw[square.next_row][square.next_col].divinely_inspired) {
 					
-					this.state.otw[square.adj_row][square.adj_col].occupant = null
-					this.state.otw[square.adj_row][square.adj_col].side = null
+					this.setState({
+						otw: update(
+							this.state.otw, {[square.adj_row]: {[square.adj_col]: {occupant: {$set: null}}}}
+						)
+					});
+					this.setState({
+						otw: update(
+							this.state.otw, {[square.adj_row]: {[square.adj_col]: {side: {$set: null}}}}
+						)
+					});
 					
 					if (this.state.otw[square.adj_row][square.adj_col].divinely_inspired) {
 						this.state.winner = this.state.current_player
 						this.state.win_type = 'Faith extinguished'
-						this.state.otw[square.adj_row][square.adj_col].divinely_inspired = false
+						this.setState({
+							otw: update(
+								this.state.otw, {[square.adj_row]: {[square.adj_col]: {divinely_inspired: {$set: false}}}}
+							)
+						});
 						bus.$emit('Winner', {
 							winner: this.state.current_player,
 							win_type: 'Faith extinguished'
@@ -704,11 +720,15 @@ class GameWorld extends React.Component {
 				break;
 		}
 		l(this.state.turn)
-		this.state.turn++;
+		this.setState({turn: turn + 1})
 		this.state.piece_has_moved = false
 		this.state.inspiration_has_moved = false
 		if (this.state.selected_row && this.state.selected_col) {
-			this.state.otw[this.state.selected_row][this.state.selected_col].is_selected = ''
+			this.setState({
+			otw: update(
+				this.state.otw, {[this.state.selected_row]: {[this.state.selected_col]: {is_selected: {$set: ''}}}}
+			)
+		});
 		}
 		this.state.selected_row = null
 		this.state.selected_col = null
