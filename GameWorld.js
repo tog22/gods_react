@@ -118,14 +118,14 @@ class GameWorld extends React.Component {
 			// Check if it's a valid move
 			// ...starting by calculating the deltas for later use
 			if (to_row > from_row) {
-				this.state.row_delta = to_row - from_row
+				this.setState({row_delta: to_row - from_row})
 			} else {
-				this.state.row_delta = from_row - to_row
+				this.setState({row_delta: from_row - to_row})
 			}
 			if (to_col > from_col) {
-				this.state.col_delta = to_col - from_col
+				this.setState({col_delta: to_col - from_col})
 			} else {
-				this.state.col_delta = from_col - to_col
+				this.setState({col_delta: from_col - to_col})
 			}
 			
 			let selected = this.state.otw[from_row][from_col];
@@ -557,12 +557,12 @@ class GameWorld extends React.Component {
 		
 		// AFTER all other deselection steps, unset the world's selected_row/col state
 		
-		this.state.selected_row = null
-		this.state.selected_col = null
+		this.setState({selected_row: null})
+		this.setState({selected_col: null})
 		
 		// Reset the deltas for neatness
-		this.state.row_delta = null
-		this.state.col_delta = null
+		this.setState({row_delta: null})
+		this.setState({col_delta: null})
 	}
 	
 	
@@ -573,8 +573,8 @@ class GameWorld extends React.Component {
 		switch (moved_to.heartland) {
 			case 1:
 				if (this.state.current_player === 2) {
-					this.state.winner = 2
-					this.state.win_type = 'Heartland reached'
+					this.setState({winner: 2})
+					this.setState({win_type: 'Heartland reached'})
 					bus.$emit('Winner', {
 						winner: 2,
 						win_type: 'Heartland reached'
@@ -583,8 +583,8 @@ class GameWorld extends React.Component {
 				break;
 			case 2:
 				if (this.state.current_player === 1) {
-					this.state.winner = 1
-					this.state.win_type = 'Heartland reached'
+					this.setState({winner: 1})
+					this.setState({win_type: 'Heartland reached'})
 					bus.$emit('Winner', {
 						winner: 1,
 						win_type: 'Heartland reached'
@@ -623,8 +623,8 @@ class GameWorld extends React.Component {
 					});
 					
 					if (this.state.otw[square.adj_row][square.adj_col].divinely_inspired) {
-						this.state.winner = this.state.current_player
-						this.state.win_type = 'Faith extinguished'
+						this.setState({winner: this.state.current_player})
+						this.setState({win_type: 'Faith extinguished'})
 						this.setState({
 							otw: update(
 								this.state.otw, {[square.adj_row]: {[square.adj_col]: {divinely_inspired: {$set: false}}}}
@@ -713,16 +713,16 @@ class GameWorld extends React.Component {
 		
 		switch (this.state.current_player) {
 			case 1:
-				this.state.current_player = 2
+				this.setState({current_player: 2})
 				break;
 			case 2:
-				this.state.current_player = 1
+				this.setState({current_player: 1})
 				break;
 		}
 		l(this.state.turn)
 		this.setState({turn: turn + 1})
-		this.state.piece_has_moved = false
-		this.state.inspiration_has_moved = false
+		this.setState({piece_has_moved: false})
+		this.setState({inspiration_has_moved: false})
 		if (this.state.selected_row && this.state.selected_col) {
 			this.setState({
 			otw: update(
@@ -730,10 +730,10 @@ class GameWorld extends React.Component {
 			)
 		});
 		}
-		this.state.selected_row = null
-		this.state.selected_col = null
-		this.state.row_delta = null
-		this.state.col_delta = null
+		this.setState({selected_row: null})
+		this.setState({selected_col: null})
+		this.setState({row_delta: null})
+		this.setState({col_delta: null})
 		// Pulse animation is added in computed property current_player_image 
 		/// (Adding it with jQuery here doesn't work as it then gets overridden there)
 		
