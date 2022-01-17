@@ -575,20 +575,20 @@ class GameWorld extends React.Component {
 				if (this.state.current_player === 2) {
 					this.setState({winner: 2})
 					this.setState({win_type: 'Heartland reached'})
-					bus.$emit('Winner', {
-						winner: 2,
-						win_type: 'Heartland reached'
-					})
+					// bus.$emit('Winner', {
+					// 	winner: 2,
+					// 	win_type: 'Heartland reached'
+					// })
 				}
 				break;
 			case 2:
 				if (this.state.current_player === 1) {
 					this.setState({winner: 1})
 					this.setState({win_type: 'Heartland reached'})
-					bus.$emit('Winner', {
-						winner: 1,
-						win_type: 'Heartland reached'
-					})
+					// bus.$emit('Winner', {
+					// 	winner: 1,
+					// 	win_type: 'Heartland reached'
+					// })
 				}
 				break;
 		}
@@ -630,10 +630,10 @@ class GameWorld extends React.Component {
 								this.state.otw, {[square.adj_row]: {[square.adj_col]: {divinely_inspired: {$set: false}}}}
 							)
 						});
-						bus.$emit('Winner', {
-							winner: this.state.current_player,
-							win_type: 'Faith extinguished'
-						})
+						// bus.$emit('Winner', {
+						// 	winner: this.state.current_player,
+						// 	win_type: 'Faith extinguished'
+						// })
 					}
 					
 				}
@@ -769,7 +769,6 @@ class GameWorld extends React.Component {
 		
 	}
 	
-	*/
 	
 	constructor(props) {
 		super(props);
@@ -1134,3 +1133,8 @@ class GameWorld extends React.Component {
 }
 
 export default GameWorld;
+
+let l = function (to_log) { 
+	console.log(to_log) 
+}
+let lo = l
