@@ -115,6 +115,17 @@ class GameWorld extends React.Component {
 			}
 			
 			
+			/***************************
+			**						  **
+			** ⚠️ Problem with React: **
+			
+				setState() doesn't update instantly, you need to make the syntax even *more* complicated with: 
+			
+			https://reactjs.org/docs/faq-state.html#what-is-the-difference-between-passing-an-object-or-a-function-in-setstate
+			
+			**						  **
+			***************************/
+			
 			// Check if it's a valid move
 			// ...starting by calculating the deltas for later use
 			if (to_row > from_row) {
