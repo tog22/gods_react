@@ -523,7 +523,6 @@ class GameWorld extends React.Component {
 				} else {
 					return false
 				}
-				break
 			case 2:
 			default:
 				if (is_along_column && col_direction === 'down') {
@@ -534,7 +533,6 @@ class GameWorld extends React.Component {
 				} else {
 					return false
 				}
-				break
 		}
 		
 	}
@@ -580,8 +578,9 @@ class GameWorld extends React.Component {
 					// 	win_type: 'Heartland reached'
 					// })
 				}
-				break;
+				break
 			case 2:
+			default:
 				if (this.state.current_player === 1) {
 					this.setState({winner: 1})
 					this.setState({win_type: 'Heartland reached'})
@@ -590,7 +589,7 @@ class GameWorld extends React.Component {
 					// 	win_type: 'Heartland reached'
 					// })
 				}
-				break;
+				break
 		}
 	}
 	
@@ -716,11 +715,12 @@ class GameWorld extends React.Component {
 				this.setState({current_player: 2})
 				break;
 			case 2:
+			default:
 				this.setState({current_player: 1})
 				break;
 		}
 		l(this.state.turn)
-		this.setState({turn: turn + 1})
+		this.setState({turn: this.state.turn + 1})
 		this.setState({piece_has_moved: false})
 		this.setState({inspiration_has_moved: false})
 		if (this.state.selected_row && this.state.selected_col) {
@@ -1127,8 +1127,23 @@ class GameWorld extends React.Component {
 		};
 		
 		// Bind this in all methods
-		this.render_row = this.render_row.bind(this);
-		this.square_click = this.square_click.bind(this);
+		this.render_row = this.render_row.bind(this)
+		this.square_click = this.square_click.bind(this)
+		this.is_valid_move = this.is_valid_move.bind(this)
+		this.is_adjacent_diagonally = this.is_adjacent_diagonally.bind(this)
+		this.is_adjacent = this.is_adjacent.bind(this)
+		this.is_along_clear_straight_line = this.is_along_clear_straight_line.bind(this)
+		this.is_along_solid_straight_line = this.is_along_solid_straight_line.bind(this)
+		this.is_along_an_inspiration_path = this.is_along_an_inspiration_path.bind(this)
+		this.trace_adjacent_cells = this.trace_adjacent_cells.bind(this)
+		this.get_adjacent_cells = this.get_adjacent_cells.bind(this)
+		this.is_hop = this.is_hop.bind(this)
+		this.unselect_piece = this.unselect_piece.bind(this)
+		this.check_for_reaching_heartland = this.check_for_reaching_heartland.bind(this)
+		this.check_for_trap = this.check_for_trap.bind(this)
+		this.squares_to_check_for_trap = this.squares_to_check_for_trap.bind(this)
+		this.end_turn = this.end_turn.bind(this)
+		this.waiting_online = this.waiting_online.bind(this)
 	}
 }
 
